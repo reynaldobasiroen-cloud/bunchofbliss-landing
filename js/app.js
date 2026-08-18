@@ -1,5 +1,7 @@
 /* ============================================================
-   BUNCH OF BLISS — LANDING PAGE LOGIC V4
+   BUNCH OF BLISS — LANDING PAGE LOGIC V5
+   Form ringan: Nama + WhatsApp + Email (+ consent)
+   Kualifikasi (untuk siapa/budget/tanggal) digali CS di chat.
    Events: PageView → ViewContent → LeadFormStart → Lead → WhatsAppClick
    Lead → Supabase (non-blocking) → redirect WhatsApp dengan konteks
    Sticky CTA: tampil hanya ketika form TIDAK terlihat
@@ -117,29 +119,12 @@
     if (!form) return;
     watchFormStart(form);
 
-    /* tanggal: minimal hari ini */
-    var dateInput = form.querySelector('#tanggal');
-    if (dateInput) {
-      var todayIso = new Date();
-      todayIso.setHours(0, 0, 0, 0);
-      dateInput.min = todayIso.toISOString().split('T')[0];
-    }
-
     form.addEventListener('submit', function (e) {
       e.preventDefault();
 
-      var getVal = function (id) { return (form.querySelector(id) || {}).value || ''; };
-      var getRadio = function (n) {
-        return (form.querySelector('input[name="' + n + '"]:checked') || {}).value || '';
-      };
-
-      var name = getVal('#nama');
-      var phone = getVal('#wa');
-      var email = getVal('#email');
-      var recipient = getRadio('untuk');
-      var budget = getRadio('budget');
-      var occasion = getRadio('occasion');       // hanya campaign bingung
-      var requiredDate = getVal('#tanggal');     // anniversary + birthday
+      var name = (form.querySelector('#nama') || {}).value || '';
+      var phone = (form.querySelector('#wa') || {}).value || '';
+      var email = (form.querySelector('#email') || {}).value || '';
       var consent = (form.querySelector('#consent') || {}).checked;
       var errEl = form.querySelector('.form-error');
 
@@ -152,18 +137,6 @@
       if (!name.trim()) return showErr('Isi nama kamu dulu ya 🙂');
       if (digits.length < 9) return showErr('Nomor WhatsApp-nya belum valid — cek lagi ya');
       if (!/^\S+@\S+\.\S+$/.test(email)) return showErr('Email-nya belum valid — cek lagi ya');
-      if (!recipient) return showErr('Pilih dulu: bunga ini untuk siapa?');
-      if (!budget) return showErr('Pilih dulu perkiraan budget kamu ya');
-      if (form.querySelector('input[name="occasion"]') && !occasion) return showErr('Pilih dulu momennya apa');
-
-      if (form.querySelector('#tanggal')) {
-        if (!requiredDate) return showErr('Isi tanggalnya dulu ya');
-        var d = new Date(requiredDate + 'T00:00:00');
-        var now = new Date(); now.setHours(0, 0, 0, 0);
-        if (isNaN(d.getTime())) return showErr('Format tanggal belum valid');
-        if (d < now) return showErr('Tanggalnya udah lewat — pilih tanggal lain ya');
-      }
-
       if (!consent) return showErr('Centang persetujuan pemrosesan data dulu ya');
 
       errEl.style.display = 'none';
@@ -172,7 +145,7 @@
       btn.textContent = 'MEMBUKA WHATSAPP…';
 
       /* --- Lead event ke Meta (hanya saat submit valid) --- */
-      track('Lead', { campaign: CAMPAIGN.id, budget: budget, relationship: recipient });
+      track('Lead', { campaign: CAMPAIGN.id });
 
       /* --- Simpan ke database (TIDAK memblokir redirect WA) --- */
       var attr = getAttribution();
@@ -181,10 +154,6 @@
         phone: '+62' + digits.replace(/^0/, '').replace(/^62/, ''),
         email: email.trim(),
         campaign: CAMPAIGN.id,
-        relationship: recipient,
-        budget: budget,
-        occasion: occasion,
-        required_date: requiredDate,
         status: 'NEW',
         fbp: getCookie('_fbp') || '',
         fbc: getCookie('_fbc') || '',
@@ -197,12 +166,7 @@
       saveLead(lead);
 
       /* --- Redirect WhatsApp dengan konteks --- */
-      var waText = CAMPAIGN.wa
-        .replace('{nama}', name.trim())
-        .replace('{untuk}', recipient.toLowerCase())
-        .replace('{budget}', budget)
-        .replace('{occasion}', occasion || '')
-        .replace('{tanggal}', requiredDate || '');
+      var waText = CAMPAIGN.wa.replace('{nama}', name.trim());
       var url = 'https://wa.me/' + CFG.WA_NUMBER + '?text=' + encodeURIComponent(waText);
 
       track('WhatsAppClick', { campaign: CAMPAIGN.id });
