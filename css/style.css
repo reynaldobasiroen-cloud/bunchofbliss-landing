@@ -68,11 +68,11 @@ header {
 }
 .brand { display: flex; align-items: center; gap: 11px; text-decoration: none; }
 .brand-mark {
-  width: 36px; height: 36px; border-radius: 50%;
-  background: linear-gradient(135deg, #C98B75, #A9833F);
-  display: flex; align-items: center; justify-content: center;
-  color: #fff; font-size: 16px; flex-shrink: 0;
+  width: 38px; height: 38px; border-radius: 50%;
+  overflow: hidden; background: var(--surface);
+  display: block; flex-shrink: 0;
 }
+.brand-mark img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .brand-name { font-family: var(--serif); font-weight: 700; font-size: 18px; color: var(--ink); }
 .brand-sub { font-size: 10px; letter-spacing: 1.8px; text-transform: uppercase; color: var(--muted); display: block; margin-top: -3px; }
 
