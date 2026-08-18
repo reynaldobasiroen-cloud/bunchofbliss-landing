@@ -58,11 +58,11 @@
     <span class="kicker">Gimana caranya</span>
     <h2>Kasih tahu kami sedikit.</h2>
     <div class="steps">
-      <div class="step"><span class="num">1</span><span class="txt"><b>Untuk siapa?</b></span></div>
-      <div class="step"><span class="num">2</span><span class="txt"><b>Budget berapa?</b></span></div>
-      <div class="step"><span class="num">3</span><span class="txt"><b>Tanggalnya kapan?</b></span></div>
+      <div class="step"><span class="num">1</span><span><span class="step-title">Isi form singkat</span><div class="step-desc">Cukup nama, WhatsApp, dan email.</div></span></div>
+      <div class="step"><span class="num">2</span><span><span class="step-title">Tim kami balas di WhatsApp</span><div class="step-desc">Dengan rekomendasi awal buat kamu.</div></span></div>
+      <div class="step"><span class="num">3</span><span><span class="step-title">Cerita kebutuhanmu</span><div class="step-desc">Untuk siapa, budget, dan tanggalnya.</div></span></div>
     </div>
-    <p class="lead-line">Dari tiga informasi ini, tim kami bisa bantu arahkan pilihan bouquet yang paling masuk akal.</p>
+    <p class="lead-line">Dari obrolan itu, kami bantu arahkan pilihan bouquet yang paling masuk akal.</p>
   </section>
 
   <!-- SECTION 4 — PRODUCT (budget, foto yang jualan) -->
@@ -147,27 +147,6 @@
           <label for="email">Email</label>
           <input type="email" id="email" placeholder="cth: rey@gmail.com" autocomplete="email">
 
-          <label>Bunga ini untuk siapa?</label>
-          <div class="radio-group">
-            <label class="radio-pill"><input type="radio" name="untuk" value="Pacar"><span>Pacar</span></label>
-            <label class="radio-pill"><input type="radio" name="untuk" value="Istri/Suami"><span>Istri/Suami</span></label>
-            <label class="radio-pill"><input type="radio" name="untuk" value="Ibu"><span>Ibu</span></label>
-            <label class="radio-pill"><input type="radio" name="untuk" value="Teman"><span>Teman</span></label>
-            <label class="radio-pill"><input type="radio" name="untuk" value="Lainnya"><span>Lainnya</span></label>
-          </div>
-
-          <label>Perkiraan budget</label>
-          <div class="radio-group">
-            <label class="radio-pill"><input type="radio" name="budget" value="<300K"><span>&lt; 300K</span></label>
-            <label class="radio-pill"><input type="radio" name="budget" value="300–500K"><span>300–500K</span></label>
-            <label class="radio-pill"><input type="radio" name="budget" value="500K–1M"><span>500K–1M</span></label>
-            <label class="radio-pill"><input type="radio" name="budget" value=">1M"><span>&gt; 1M</span></label>
-          </div>
-
-          <label for="tanggal">Tanggal anniversary</label>
-          <input type="date" id="tanggal">
-          <p class="field-hint">Tanggal anniversary-nya kapan? Kalau belum pasti, perkiraan juga boleh.</p>
-
           <div class="consent">
             <input type="checkbox" id="consent">
             <label for="consent">Saya setuju data saya digunakan untuk dihubungi terkait kebutuhan pemesanan. Lihat <a href="privacy.html" target="_blank">Kebijakan Privasi</a>.</label>
@@ -207,8 +186,8 @@
   <a class="btn-primary" href="#form">Bantu Pilihkan Bouquet</a>
 </div>
 
-<script>window.BOB_CAMPAIGN = { id: 'anniversary', wa: 'Halo Bunch of Bliss, saya {nama}.\n\nSaya mau cari bouquet untuk {untuk} untuk anniversary.\n\nBudget saya sekitar {budget}.\nTanggalnya {tanggal}.\n\nBoleh dibantu rekomendasikan?' };</script>
+<script>window.BOB_CAMPAIGN = { id: 'anniversary', wa: 'Halo Bunch of Bliss, saya {nama}.\n\nSaya mau cari bouquet untuk anniversary.\n\nSaya sudah isi form di website — boleh dibantu rekomendasikan?' };</script>
 <script src="js/config.js?v=1"></script>
-<script src="js/app.js?v=4"></script>
+<script src="js/app.js?v=5"></script>
 </body>
 </html>
