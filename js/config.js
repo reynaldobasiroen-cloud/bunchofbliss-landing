@@ -11,8 +11,8 @@ window.BOB_CONFIG = {
   SUPABASE_URL: 'https://ajxebmjqveisffueghay.supabase.co',            // contoh: https://xxxx.supabase.co
   SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqeGVibWpxdmVpc2ZmdWVnaGF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwMTU5ODAsImV4cCI6MjEwMTU5MTk4MH0.KO0mB0TfqnGVdF4ft7oSHZMi8caeM_NsXsdTkvOL1XI',       // anon key (aman untuk frontend)
 
-  // Meta Pixel — DIISI SETELAH PIXEL DIBUAT DI EVENTS MANAGER
-  PIXEL_ID: '',                // contoh: '1234567890123456'
+  // Meta Pixel — TERPASANG
+  PIXEL_ID: '1606952111063885',
 
   // CDN foto produk (sumber: website Bunch of Bliss di Zyro)
   CDN: 'https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=800/AGB66ZV18NI3a6Or/',
