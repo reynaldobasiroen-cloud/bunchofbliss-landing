@@ -1,9 +1,8 @@
 /* ============================================================
-   BUNCH OF BLISS — LANDING PAGE LOGIC V2
+   BUNCH OF BLISS — LANDING PAGE LOGIC V4
    Events: PageView → ViewContent → LeadFormStart → Lead → WhatsAppClick
    Lead → Supabase (non-blocking) → redirect WhatsApp dengan konteks
-   Lead payload: campaign, adset, ad, utm_*, landing_page,
-                 relationship, budget, occasion, required_date
+   Sticky CTA: tampil hanya ketika form TIDAK terlihat
    ============================================================ */
 
 (function () {
@@ -86,27 +85,30 @@
     form.addEventListener('click', mark);
   }
 
-  /* ---------- Event: WhatsAppClick ---------- */
-  document.addEventListener('click', function (e) {
-    var a = e.target.closest && e.target.closest('a[href*="wa.me"], a[href*="api.whatsapp.com"]');
-    if (a) track('WhatsAppClick', { campaign: CAMPAIGN.id });
-  });
-
-  /* ---------- Sticky CTA (muncul setelah hero terlewat) ---------- */
+  /* ---------- Sticky CTA: hanya saat (1) lewat hero DAN (2) form tidak terlihat ---------- */
   function watchSticky() {
     var bar = document.getElementById('sticky-bar');
     var hero = document.querySelector('.hero');
+    var formSection = document.getElementById('form');
     if (!bar || !hero) return;
-    var shown = false;
-    var onScroll = function () {
-      var past = window.scrollY > hero.offsetHeight * 0.7;
-      if (past !== shown) {
-        shown = past;
-        bar.classList.toggle('visible', past);
-      }
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
+
+    var formVisible = false;
+    function update() {
+      var pastHero = window.scrollY > hero.offsetHeight * 0.7;
+      bar.classList.toggle('visible', pastHero && !formVisible);
+    }
+    window.addEventListener('scroll', update, { passive: true });
+
+    if (formSection && 'IntersectionObserver' in window) {
+      var obs = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          formVisible = e.isIntersecting;
+          update();
+        });
+      }, { threshold: 0.05 });
+      obs.observe(formSection);
+    }
+    update();
   }
 
   /* ---------- Form submit ---------- */
@@ -114,6 +116,14 @@
     var form = document.getElementById('lead-form');
     if (!form) return;
     watchFormStart(form);
+
+    /* tanggal: minimal hari ini */
+    var dateInput = form.querySelector('#tanggal');
+    if (dateInput) {
+      var todayIso = new Date();
+      todayIso.setHours(0, 0, 0, 0);
+      dateInput.min = todayIso.toISOString().split('T')[0];
+    }
 
     form.addEventListener('submit', function (e) {
       e.preventDefault();
@@ -129,7 +139,7 @@
       var recipient = getRadio('untuk');
       var budget = getRadio('budget');
       var occasion = getRadio('occasion');       // hanya campaign bingung
-      var requiredDate = getVal('#tanggal');     // hanya campaign birthday
+      var requiredDate = getVal('#tanggal');     // anniversary + birthday
       var consent = (form.querySelector('#consent') || {}).checked;
       var errEl = form.querySelector('.form-error');
 
@@ -145,7 +155,15 @@
       if (!recipient) return showErr('Pilih dulu: bunga ini untuk siapa?');
       if (!budget) return showErr('Pilih dulu perkiraan budget kamu ya');
       if (form.querySelector('input[name="occasion"]') && !occasion) return showErr('Pilih dulu momennya apa');
-      if (form.querySelector('#tanggal') && !requiredDate) return showErr('Isi tanggal dibutuhkan-nya ya');
+
+      if (form.querySelector('#tanggal')) {
+        if (!requiredDate) return showErr('Isi tanggalnya dulu ya');
+        var d = new Date(requiredDate + 'T00:00:00');
+        var now = new Date(); now.setHours(0, 0, 0, 0);
+        if (isNaN(d.getTime())) return showErr('Format tanggal belum valid');
+        if (d < now) return showErr('Tanggalnya udah lewat — pilih tanggal lain ya');
+      }
+
       if (!consent) return showErr('Centang persetujuan pemrosesan data dulu ya');
 
       errEl.style.display = 'none';
@@ -153,7 +171,7 @@
       btn.disabled = true;
       btn.textContent = 'MEMBUKA WHATSAPP…';
 
-      /* --- Lead event ke Meta --- */
+      /* --- Lead event ke Meta (hanya saat submit valid) --- */
       track('Lead', { campaign: CAMPAIGN.id, budget: budget, relationship: recipient });
 
       /* --- Simpan ke database (TIDAK memblokir redirect WA) --- */
@@ -186,6 +204,8 @@
         .replace('{occasion}', occasion || '')
         .replace('{tanggal}', requiredDate || '');
       var url = 'https://wa.me/' + CFG.WA_NUMBER + '?text=' + encodeURIComponent(waText);
+
+      track('WhatsAppClick', { campaign: CAMPAIGN.id });
 
       var successEl = form.querySelector('.form-success');
       if (successEl) {
