@@ -58,12 +58,12 @@
     obs.observe(el);
   }
 
-  /* ---------- Event: WhatsAppClick saat tombol WA diklik ---------- */
+  /* ---------- Event: Contact (standar Meta) saat tombol WA diklik ---------- */
   function watchDirectWA() {
     var btns = document.querySelectorAll('.wa-direct');
     for (var i = 0; i < btns.length; i++) {
       btns[i].addEventListener('click', function () {
-        track('WhatsAppClick', { campaign: CAMPAIGN.id });
+        track('Contact', { campaign: CAMPAIGN.id });
       });
     }
   }
