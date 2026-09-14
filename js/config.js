@@ -12,7 +12,7 @@ window.BOB_CONFIG = {
   SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqeGVibWpxdmVpc2ZmdWVnaGF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwMTU5ODAsImV4cCI6MjEwMTU5MTk4MH0.KO0mB0TfqnGVdF4ft7oSHZMi8caeM_NsXsdTkvOL1XI',       // anon key (aman untuk frontend)
 
   // Meta Pixel — TERPASANG
-  PIXEL_ID: '1606952111063885',
+  PIXEL_ID: '1394838425412638',
 
   // CDN foto produk (sumber: website Bunch of Bliss di Zyro)
   CDN: 'https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=800/AGB66ZV18NI3a6Or/',
