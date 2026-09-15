@@ -1,8 +1,10 @@
 /* ============================================================
-   BUNCH OF BLISS — LANDING PAGE LOGIC V7
-   Tanpa form: klik WA langsung (button .wa-direct)
-   Events: PageView → ViewContent → WhatsAppClick
-   Sticky CTA: tampil hanya saat bagian WA belum terlihat
+   BUNCH OF BLISS — LANDING PAGE LOGIC V9
+   Tanpa form: klik WA langsung.
+   Tracking ganda:
+     - Meta Pixel: PageView → ViewContent → Contact
+     - Supabase: log klik WA ke tabel bob_leads (status WA_CLICK)
+       => angka klik WA yang 100% akurat, independen dari Meta
    ============================================================ */
 
 (function () {
@@ -41,6 +43,28 @@
     if (window.console && CFG.DEBUG) console.log('[fbq]', ev, data);
   }
 
+  /* ---------- UTM + Meta click params ---------- */
+  function getAttribution() {
+    var p = new URLSearchParams(window.location.search);
+    return {
+      utm_source: p.get('utm_source') || '',
+      utm_medium: p.get('utm_medium') || '',
+      utm_campaign: p.get('utm_campaign') || '',
+      utm_content: p.get('utm_content') || '',
+      utm_term: p.get('utm_term') || '',
+      adset: p.get('utm_adset') || '',
+      ad: p.get('utm_ad') || '',
+      creative: p.get('utm_creative') || '',
+      fbclid: p.get('fbclid') || '',
+      landing_page: window.location.pathname.split('/').pop() || ''
+    };
+  }
+
+  function getCookie(name) {
+    var m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+    return m ? decodeURIComponent(m.pop()) : '';
+  }
+
   /* ---------- Event: ViewContent saat section produk terlihat ---------- */
   var productSeen = false;
   function watchProducts() {
@@ -58,17 +82,45 @@
     obs.observe(el);
   }
 
-  /* ---------- Event: Contact (standar Meta) saat tombol WA diklik ---------- */
+  /* ---------- Klik WA: track Contact (Meta) + log ke Supabase ---------- */
   function watchDirectWA() {
     var btns = document.querySelectorAll('.wa-direct');
     for (var i = 0; i < btns.length; i++) {
       btns[i].addEventListener('click', function () {
         track('Contact', { campaign: CAMPAIGN.id });
+        saveClick();
       });
     }
   }
 
-  /* ---------- Sticky CTA: tampil setelah hero, hilang saat bagian WA terlihat ---------- */
+  function saveClick() {
+    if (!CFG.SUPABASE_URL || !CFG.SUPABASE_ANON_KEY) return;
+    var attr = getAttribution();
+    var row = {
+      name: '',
+      phone: '',
+      email: '',
+      campaign: CAMPAIGN.id,
+      status: 'WA_CLICK',
+      landing_page: attr.landing_page,
+      utm_source: attr.utm_source, utm_medium: attr.utm_medium,
+      utm_campaign: attr.utm_campaign, utm_content: attr.utm_content, utm_term: attr.utm_term,
+      adset: attr.adset, ad: attr.ad, creative: attr.creative, fbclid: attr.fbclid,
+      fbp: getCookie('_fbp') || '', fbc: getCookie('_fbc') || ''
+    };
+    fetch(CFG.SUPABASE_URL + '/rest/v1/bob_leads', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': CFG.SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + CFG.SUPABASE_ANON_KEY,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(row)
+    }).catch(function () { /* network error — jangan ganggu UX */ });
+  }
+
+  /* ---------- Sticky CTA ---------- */
   function watchSticky() {
     var bar = document.getElementById('sticky-bar');
     var hero = document.querySelector('.hero');
